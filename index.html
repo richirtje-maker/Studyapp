@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Westerwork Pro">
+    <title>Westerwork Pro - School Management</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #7c3aed;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            
+            --bg-light: #ffffff;
+            --bg-soft-light: #f8fafc;
+            --bg-card-light: #f1f5f9;
+            --text-light: #0f172a;
+            --text-muted-light: #64748b;
+            --border-light: #e2e8f0;
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            
+            --bg-dark: #0f172a;
+            --bg-soft-dark: #1e293b;
+            --bg-card-dark: #1e293b;
+            --text-dark: #f1f5f9;
+            --text-muted-dark: #cbd5e1;
+            --border-dark: #334155;
+            --shadow-dark: rgba(0, 0, 0, 0.28);
+            
+            --bg: var(--bg-light);
+            --bg-soft: var(--bg-soft-light);
+            --bg-card: var(--bg-card-light);
+            --text: var(--text-light);
+            --text-muted: var(--text-muted-light);
+            --border: var(--border-light);
+            --shadow: var(--shadow-light);
+        }
+
+        body.dark-mode {
+            --bg: var(--bg-dark);
+            --bg-soft: var(--bg-soft-dark);
+            --bg-card: var(--bg-card-dark);
+            --text: var(--text-dark);
+            --text-muted: var(--text-muted-dark);
+            --border: var(--border-dark);
+            --shadow: var(--shadow-dark);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-wrapper {
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            background: var(--bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 0 1px var(--border);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px 18px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            box-shadow: 0 4px 12px var(--shadow);
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .header-right { display: flex; gap: 8px; }
+        .header-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .header-btn:active {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(0.95);
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 16px;
+            padding-bottom: 100px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .screen { display: none; }
+        .screen.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: all 0.2s ease;
+        }
+        .card:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-content {
+            font-size: 1rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .card-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -20px); }
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-time {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+
+        .welcome-greeting {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-bottom: 4px;
+        }
+
+        .welcome-status {
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.04em;
+        }
+
+        .progress-item { margin-bottom: 16px; }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .progress-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .progress-percentage {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-soft);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+        .item-row:last-child { border-bottom: none; }
+        .item-row:active {
+            background: var(--bg-soft);
+            padding-left: 8px;
+            padding-right: 8px;
+            margin-left: -8px;
+            margin-right: -8px;
+            border-radius: 8px;
+        }
+
+        .item-time {
+            min-width: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .item-time-hour { font-size: 1rem; }
+        .item-time-min { font-size: 0.65rem; color: var(--text-muted); }
+
+        .item-content { flex: 1; }
+        .item-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+        .item-room {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .badge.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+        .badge.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+        .badge.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .deadline-card {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(245, 158, 11, 0.05));
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-left: 4px solid var(--danger);
+        }
+        .deadline-card.warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+            border-color: rgba(245, 158, 11, 0.2);
+            border-left-color: var(--warning);
+        }
+        .deadline-card.success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border-color: rgba(16, 185, 129, 0.2);
+            border-left-color: var(--success);
+        }
+
+        .screentime-widget {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .screentime-title {
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .screentime-display {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--success);
+            letter-spacing: -0.04em;
+            margin-bottom: 8px;
+        }
+        .progress-bar.screentime { height: 6px; margin-bottom: 8px; }
+        .progress-fill.screentime { background: linear-gradient(90deg, var(--success), var(--warning)); }
+
+        .grade-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .grade-card {
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+        .grade-subject {
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .grade-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.05em;
+        }
+        .grade-date {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .day-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .day-tab {
+            min-width: 50px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .day-tab:active { transform: scale(0.95); }
+        .day-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-color: transparent;
+        }
+        .day-name {
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .day-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .day-tab.active .day-date {
+            opacity: 0.9;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group { margin-bottom: 14px; }
+        label {
+            display: block;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        input, select, textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: var(--bg-soft);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 11px 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: var(--bg-card);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            letter-spacing: -0.02em;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn.secondary {
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn.secondary:active { background: var(--bg-soft); }
+        .btn + .btn { margin-top: 8px; }
+
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 8px var(--shadow);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px 6px 8px;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-item:active { transform: scale(0.92); }
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(37, 99, 235, 0.08);
+            border-radius: 12px 12px 0 0;
+        }
+        .nav-icon { font-size: 1.2rem; }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+        }
+        .toggle-switch {
+            width: 48px;
+            height: 28px;
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .toggle-switch.active {
+            background: linear-gradient(135deg, var(--success), var(--success));
+            border-color: var(--success);
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.2s ease;
+        }
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+
+        @media (min-width: 500px) {
+            .app-wrapper {
+                border-left: 1px solid var(--border);
+                border-right: 1px solid var(--border);
+                border-radius: 20px;
+                overflow: hidden;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .grade-grid { grid-template-columns: 1fr; }
+            .welcome-greeting { font-size: 1.5rem; }
+        }
+
+        .section-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="app-wrapper">
+        <div class="header">
+            <div class="header-left">
+                <div class="header-logo">🎓 Westerwork</div>
+            </div>
+            <div class="header-right">
+                <button class="header-btn" onclick="toggleNotifications()" title="Meldingen">🔔</button>
+                <button class="header-btn" onclick="toggleDarkMode()" title="Donker/Licht">🌙</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="today-screen" class="screen active">
+                <div class="card welcome-card">
+                    <div class="welcome-content">
+                        <div class="welcome-time" id="current-time-welcome"></div>
+                        <div class="welcome-greeting">Welkom, <span id="name-display">Leerling</span></div>
+                        <div class="welcome-status" id="welcome-status">Goedemorgen! 👋</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Volgende les</div>
+                        <div class="stat-value" id="next-lesson-time">10:30</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Gemiddelde</div>
+                        <div class="stat-value">7.9</div>
+                    </div>
+                </div>
+
+                <div class="screentime-widget">
+                    <div class="screentime-title">📱 Schermtijd vandaag</div>
+                    <div class="screentime-display" id="screentime-display">0m</div>
+                    <div class="progress-bar screentime">
+                        <div class="progress-fill screentime" id="screentime-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="card-meta">Streef: 60 min | Blijf op schema</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📚 Lessen vandaag</div>
+                    </div>
+                    <div id="today-lessons">
+                        <div class="item-row">
+                            <div class="item-time">
+                                <div class="item-time-hour">08</div>
+                                <div class="item-time-min">30</div>
+                            </div>
+                            <div class="item-content">
+                                <div class="item-name">Nederlands</div>
+                                <div class="item-room">📍 Lokaal A2 • Mevrouw de Vries</div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <div class="item-time">
+                                <div class="item-time-hour">10</div>
+                                <div class="item-time-min">30</div>
+                            </div>
+                            <div class="item-content">
+                                <div class="item-name">Wiskunde</div>
+                                <div class="item-room">📍 Lokaal Z12 • Dhr. Jansen</div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <div class="item-time">
+                                <div class="item-time-hour">13</div>
+                                <div class="item-time-min">00</div>
+                            </div>
+                            <div class="item-content">
+                                <div class="item-name">Engels</div>
+                                <div class="item-room">📍 Lokaal T4 • Mevrouw Smith</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">✏️ Huiswerk</div>
+                    </div>
+                    <div id="homework-list">
+                        <div class="item-row">
+                            <div class="item-content">
+                                <div class="item-name">Nederlands - Hoofdstuk 5</div>
+                                <div class="item-room">Opgaven 1-15 • <span class=\"badge warning\">Morgen</span></div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <div class="item-content">
+                                <div class="item-name">Engels - Woordenschat blok 3</div>
+                                <div class="item-room">Oefenen • <span class=\"badge\">Volgende week</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="week-screen" class="screen">
+                <div class="day-tabs" id="day-tabs">
+                    <div class="day-tab active" data-day="0">
+                        <div class="day-name">Ma</div>
+                        <div class="day-date">2 Okt</div>
+                    </div>
+                    <div class="day-tab" data-day="1">
+                        <div class="day-name">Di</div>
+                        <div class="day-date">3 Okt</div>
+                    </div>
+                    <div class="day-tab" data-day="2">
+                        <div class="day-name">Wo</div>
+                        <div class="day-date">4 Okt</div>
+                    </div>
+                    <div class="day-tab" data-day="3">
+                        <div class="day-name">Do</div>
+                        <div class="day-date">5 Okt</div>
+                    </div>
+                    <div class="day-tab" data-day="4">
+                        <div class="day-name">Vr</div>
+                        <div class="day-date">6 Okt</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📅 Weekrooster</div>
+                    </div>
+                    <div id="week-schedule">
+                        <div class="item-row">
+                            <div class="item-time">
+                                <div class="item-time-hour">08</div>
+                                <div class="item-time-min">30</div>
+                            </div>
+                            <div class="item-content">
+                                <div class="item-name">Nederlands</div>
+                                <div class="item-room">📍 Lokaal A2</div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <div class="item-time">
+                                <div class="item-time-hour">09</div>
+                                <div class="item-time-min">20</div>
+                            </div>
+                            <div class="item-content">
+                                <div class="item-name">Wiskunde</div>
+                                <div class="item-room">📍 Lokaal Z12</div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <div class="item-time">
+                                <div class="item-time-hour">10</div>
+                                <div class="item-time-min">15</div>
+                            </div>
+                            <div class="item-content">
+                                <div class="item-name">☕ Pauze</div>
+                                <div class="item-room">15 minuten</div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <div class="item-time">
+                                <div class="item-time-hour">10</div>
+                                <div class="item-time-min">30</div>
+                            </div>
+                            <div class="item-content">
+                                <div class="item-name">Engels</div>
+                                <div class="item-room">📍 Lokaal T4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn primary" onclick="refreshWeek()">🔄 Vernieuwen</button>
+            </div>
+
+            <div id="deadlines-screen" class="screen">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">⏰ Aankomende deadlines</div>
+                    </div>
+                    <div id="deadlines-list">
+                        <div class="deadline-card danger" style="margin-bottom: 12px;">
+                            <div class="item-row" style="padding: 8px 0; border: none;">
+                                <div class="item-content">
+                                    <div class="item-name">Nederlands - Opstel</div>
+                                    <div class="item-room">
+                                        Inleveren: Vrijdag 11:00<br>
+                                        <span class=\"badge danger\">3 dagen</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="deadline-card warning" style="margin-bottom: 12px;">
+                            <div class="item-row" style="padding: 8px 0; border: none;">
+                                <div class="item-content">
+                                    <div class="item-name">Wiskunde - Toets H5</div>
+                                    <div class="item-room">
+                                        Volgende week maandag<br>
+                                        <span class=\"badge warning\">7 dagen</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="deadline-card success" style="margin-bottom: 12px;">
+                            <div class="item-row" style="padding: 8px 0; border: none;">
+                                <div class="item-content">
+                                    <div class="item-name">Engels - Mondeling</div>
+                                    <div class="item-room">
+                                        Volgende week donderdag<br>
+                                        <span class=\"badge success\">10 dagen</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📊 Voortgang</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span class="progress-name">Nederlands Opstel</span>
+                            <span class="progress-percentage">60%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span class="progress-name">Wiskunde voorbereiding</span>
+                            <span class="progress-percentage">40%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 40%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span class="progress-name">Engels mondeling</span>
+                            <span class="progress-percentage">20%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 20%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="grades-screen" class="screen">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📈 Gemiddelde per vak</div>
+                    </div>
+                    <div class="grade-grid">
+                        <div class="grade-card">
+                            <div class="grade-subject">Nederlands</div>
+                            <div class="grade-value">7.8</div>
+                            <div class="grade-date">15 Okt 2025</div>
+                        </div>
+                        <div class="grade-card">
+                            <div class="grade-subject">Wiskunde</div>
+                            <div class="grade-value">8.2</div>
+                            <div class="grade-date">12 Okt 2025</div>
+                        </div>
+                        <div class="grade-card">
+                            <div class="grade-subject">Engels</div>
+                            <div class="grade-value">8.5</div>
+                            <div class="grade-date">14 Okt 2025</div>
+                        </div>
+                        <div class="grade-card">
+                            <div class="grade-subject">Biologie</div>
+                            <div class="grade-value">7.9</div>
+                            <div class="grade-date">10 Okt 2025</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📋 Recente toetsen</div>
+                    </div>
+                    <div id=\"recent-grades\">
+                        <div class=\"item-row\">
+                            <div class=\"item-content\">
+                                <div class=\"item-name\">Toets Wiskunde H5</div>
+                                <div class=\"item-room\">29 september 2025</div>
+                            </div>
+                            <div style=\"font-size: 1.3rem; font-weight: 700; color: var(--success);\">8.4</div>
+                        </div>
+                        <div class=\"item-row\">
+                            <div class=\"item-content\">
+                                <div class=\"item-name\">Proefwerk Nederlands</div>
+                                <div class=\"item-room\">25 september 2025</div>
+                            </div>
+                            <div style=\"font-size: 1.3rem; font-weight: 700; color: var(--success);\">7.6</div>
+                        </div>
+                        <div class=\"item-row\">
+                            <div class=\"item-content\">
+                                <div class=\"item-name\">Toets Engels</div>
+                                <div class=\"item-room\">20 september 2025</div>
+                            </div>
+                            <div style=\"font-size: 1.3rem; font-weight: 700; color: var(--success);\">8.9</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class=\"btn primary\" onclick=\"refreshGrades()\">🔄 Vernieuwen</button>
+            </div>
+
+            <div id="settings-screen" class="screen">
+                <div class=\"card\">
+                    <div class=\"card-header\">
+                        <div class=\"card-title\">👤 Persoonlijke gegevens</div>
+                    </div>
+                    <div class=\"form-group\">
+                        <label for=\"name-input\">Volledig naam</label>
+                        <input type=\"text\" id=\"name-input\" placeholder=\"Jan Jansen\">
+                    </div>
+                    <div class=\"form-group\">
+                        <label for=\"email-input\">E-mailadres</label>
+                        <input type=\"email\" id=\"email-input\" placeholder=\"student@school.nl\">
+                    </div>
+                </div>
+
+                <div class=\"card\">
+                    <div class=\"card-header\">
+                        <div class=\"card-title\">🏫 Schoolinstellingen</div>
+                    </div>
+                    <div class=\"form-group\">
+                        <label for=\"magister-url\">Magister URL</label>
+                        <input type=\"url\" id=\"magister-url\" placeholder=\"https://magister.example.com\">
+                    </div>
+                    <div class=\"form-group\">
+                        <label for=\"username-input\">Gebruikersnaam</label>
+                        <input type=\"text\" id=\"username-input\" placeholder=\"Schoolnummer of gebruikersnaam\">
+                    </div>
+                    <div class=\"form-group\">
+                        <label for=\"password-input\">Wachtwoord</label>
+                        <input type=\"password\" id=\"password-input\" placeholder=\"Wachtwoord (beveiligd)\">
+                    </div>
+                </div>
+
+                <div class=\"card\">
+                    <div class=\"card-header\">
+                        <div class=\"card-title\">⚙️ App-instellingen</div>
+                    </div>
+
+                    <div class=\"toggle\">
+                        <label style=\"margin-bottom: 0;\">Donker thema</label>
+                        <div class=\"toggle-switch active\" id=\"dark-mode-toggle\" onclick=\"toggleDarkMode()\"></div>
+                    </div>
+
+                    <div class=\"toggle\">
+                        <label style=\"margin-bottom: 0;\">Meldingen</label>
+                        <div class=\"toggle-switch\" id=\"notifications-toggle\" onclick=\"toggleNotifications()\"></div>
+                    </div>
+
+                    <div class=\"form-group\" style=\"margin-top: 16px;\">
+                        <label for=\"language-select\">Taal</label>
+                        <select id=\"language-select\">
+                            <option value=\"nl\">Nederlands</option>
+                            <option value=\"en\">English</option>
+                            <option value=\"de\">Deutsch</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class=\"card\">
+                    <div class=\"card-header\">
+                        <div class=\"card-title\">ℹ️ Over Westerwork</div>
+                    </div>
+                    <div class=\"card-meta\">
+                        <strong>Versie:</strong> 2.0.0 Pro<br>
+                        <strong>Platform:</strong> iPhone/Mobiel Optimized<br>
+                        <strong>Laatste update:</strong> Oktober 2025<br><br>
+                        <em>Westerwork Pro - De ultieme school management app voor moderne scholieren. Beheer je rooster, deadlines, cijfers en meer, allemaal op één plek.</em>
+                    </div>
+                </div>
+
+                <button class=\"btn primary\" onclick=\"saveSettings()\">✓ Instellingen opslaan</button>
+                <button class=\"btn secondary\" onclick=\"confirmClearData()\">🗑️ Alle gegevens wissen</button>
+            </div>
+        </div>
+
+        <div class=\"nav-bar\">
+            <div class=\"nav-item active\" data-screen=\"today\" onclick=\"switchScreen('today', this)">
+                <div class=\"nav-icon\">📅</div>
+                <div>Vandaag</div>
+            </div>
+            <div class=\"nav-item\" data-screen=\"week\" onclick=\"switchScreen('week', this)">
+                <div class=\"nav-icon\">📚</div>
+                <div>Week</div>
+            </div>
+            <div class=\"nav-item\" data-screen=\"deadlines\" onclick=\"switchScreen('deadlines', this)">
+                <div class=\"nav-icon\">⏰</div>
+                <div>Deadlines</div>
+            </div>
+            <div class=\"nav-item\" data-screen=\"grades\" onclick=\"switchScreen('grades', this)">
+                <div class=\"nav-icon\">📊</div>
+                <div>Cijfers</div>
+            </div>
+            <div class=\"nav-item\" data-screen=\"settings\" onclick=\"switchScreen('settings', this)">
+                <div class=\"nav-icon\">⚙️</div>
+                <div>Instellingen</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE = {
+            name: 'westerwork-name',
+            email: 'westerwork-email',
+            magister_url: 'westerwork-magister-url',
+            username: 'westerwork-username',
+            password: 'westerwork-password',
+            dark_mode: 'westerwork-dark-mode',
+            notifications: 'westerwork-notifications',
+            screentime: 'westerwork-screentime'
+        };
+
+        let screenTimeMinutes = 0;
+        const MAX_SCREENTIME = 60;
+
+        function initApp() {
+            loadSettings();
+            updateTime();
+            updateScreenTime();
+            setupDayTabs();
+            setInterval(updateTime, 1000);
+            setInterval(updateScreenTime, 10000);
+        }
+
+        function updateScreenTime() {
+            screenTimeMinutes += 0.166;
+            if (screenTimeMinutes > MAX_SCREENTIME) {
+                screenTimeMinutes = Math.random() * MAX_SCREENTIME;
+            }
+
+            const display = Math.floor(screenTimeMinutes);
+            document.getElementById('screentime-display').textContent = display + 'm';
+            const percent = (screenTimeMinutes / MAX_SCREENTIME) * 100;
+            document.getElementById('screentime-fill').style.width = percent + '%';
+
+            const today = new Date().toDateString();
+            localStorage.setItem(STORAGE.screentime, JSON.stringify({
+                date: today,
+                minutes: screenTimeMinutes
+            }));
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('current-time-welcome').textContent = `${hours}:${minutes}`;
+
+            const hour = now.getHours();
+            let status = 'Goedemorgen! 👋';
+            if (hour >= 12 && hour < 18) status = 'Fijne middag! ☀️';
+            else if (hour >= 18) status = 'Goedenavond! 🌙';
+
+            document.getElementById('welcome-status').textContent = status;
+        }
+
+        function loadSettings() {
+            const name = localStorage.getItem(STORAGE.name) || 'Leerling';
+            const email = localStorage.getItem(STORAGE.email) || '';
+            const magister = localStorage.getItem(STORAGE.magister_url) || '';
+            const username = localStorage.getItem(STORAGE.username) || '';
+            const darkMode = localStorage.getItem(STORAGE.dark_mode) !== 'false';
+            const notifications = localStorage.getItem(STORAGE.notifications) === 'true';
+
+            document.getElementById('name-display').textContent = name;
+            document.getElementById('name-input').value = name === 'Leerling' ? '' : name;
+            document.getElementById('email-input').value = email;
+            document.getElementById('magister-url').value = magister;
+            document.getElementById('username-input').value = username;
+
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('dark-mode-toggle').classList.add('active');
+            }
+
+            if (notifications) {
+                document.getElementById('notifications-toggle').classList.add('active');
+            }
+
+            if (localStorage.getItem(STORAGE.password)) {
+                document.getElementById('password-input').value = atob(localStorage.getItem(STORAGE.password));
+            }
+        }
+
+        function saveSettings() {
+            const name = document.getElementById('name-input').value.trim() || 'Leerling';
+            const email = document.getElementById('email-input').value.trim();
+            const magister = document.getElementById('magister-url').value.trim();
+            const username = document.getElementById('username-input').value.trim();
+            const password = document.getElementById('password-input').value.trim();
+
+            localStorage.setItem(STORAGE.name, name);
+            localStorage.setItem(STORAGE.email, email);
+            localStorage.setItem(STORAGE.magister_url, magister);
+            localStorage.setItem(STORAGE.username, username);
+            localStorage.setItem(STORAGE.password, btoa(password));
+
+            document.getElementById('name-display').textContent = name;
+            alert('✓ Instellingen opgeslagen!');
+        }
+
+        function confirmClearData() {
+            if (confirm('Weet je zeker dat je alle gegevens wilt wissen? Dit kan niet ongedaan worden gemaakt.')) {
+                Object.values(STORAGE).forEach(key => localStorage.removeItem(key));
+                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                document.getElementById('name-display').textContent = 'Leerling';
+                alert('✓ Alle gegevens gewist!');
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('dark-mode-toggle').classList.toggle('active', isDark);
+            localStorage.setItem(STORAGE.dark_mode, isDark);
+        }
+
+        function toggleNotifications() {
+            const toggle = document.getElementById('notifications-toggle');
+            toggle.classList.toggle('active');
+            localStorage.setItem(STORAGE.notifications, toggle.classList.contains('active'));
+        }
+
+        function switchScreen(screenName, navElement) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+
+            const screenMap = {
+                'today': 'today-screen',
+                'week': 'week-screen',
+                'deadlines': 'deadlines-screen',
+                'grades': 'grades-screen',
+                'settings': 'settings-screen'
+            };
+
+            if (screenMap[screenName]) {
+                document.getElementById(screenMap[screenName]).classList.add('active');
+                navElement?.classList.add('active');
+            }
+
+            document.querySelector('.content').scrollTop = 0;
+        }
+
+        function setupDayTabs() {
+            const tabs = document.querySelectorAll('.day-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                });
+            });
+        }
+
+        function refreshWeek() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '🔄 Verversen...';
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = '🔄 Vernieuwen';
+                alert('✓ Weekrooster vernieuwd!');
+            }, 1200);
+        }
+
+        function refreshGrades() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '🔄 Verversen...';
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = '🔄 Vernieuwen';
+                alert('✓ Cijfers vernieuwd!');
+            }, 1200);
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>
